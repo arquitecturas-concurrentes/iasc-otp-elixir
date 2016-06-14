@@ -1,41 +1,26 @@
-import RESTServer
-
 defmodule RESTServer.Supervisor do
   use Supervisor
 
-  @name RESTServer.Supervisor
+  ## Client API
 
   def start_link do
-    Supervisor.start_link(__MODULE__, :ok, name: @name)
+    Supervisor.start_link(__MODULE__, [])
   end
 
-  def start_restserver(state \\ []) do
-    {:ok, pid} = Supervisor.start_child(@name, state)
+  def start_restserver(sup, state \\ []) do
+    {:ok, pid} = Supervisor.start_child(sup, state)
     pid
   end
 
-  def get_supervisor do
-    case RESTServer.Supervisor.start_link do
-      {:ok, pid} -> pid
-      {:error, {:already_started, pid}} -> pid
-      {_, something} -> something
-    end
-  end
+  ## Server Callbacks
 
-  def get_worker(state \\ []) do
-    sup_pid = RESTServer.Supervisor.get_supervisor
-    {:ok, pid} = Supervisor.start_child(sup_pid, state)
-    pid
-  end
-
-  def init(:ok) do
-    import Supervisor.Spec
-
+  def init([]) do
     children = [
       worker(RESTServer, [], restart: :transient)
     ]
 
     supervise(children, strategy: :simple_one_for_one)
+    ##supervise(children, strategy: :simple_one_for_one, max_restarts: 3, max_seconds: 5)
   end
 
 end
