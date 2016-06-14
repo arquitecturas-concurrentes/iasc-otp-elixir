@@ -3,8 +3,8 @@ defmodule RESTServer do
 
   ## Client API
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, [])
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, :ok, [name: name])
   end
 
   def get(server, url) do
