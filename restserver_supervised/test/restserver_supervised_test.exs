@@ -2,20 +2,31 @@ defmodule ServerTestTest do
   use ExUnit.Case
 
   test "start supervised worker" do
-    worker_pid = RESTServer.Supervisor.get_worker
+    {:ok, sup_pid} = RESTServer.Supervisor.start_link
 
-    assert RESTServer.get(worker_pid, "/document") == {:ok, :not_found}
+    {:ok, worker_pid} = Supervisor.start_child(sup_pid, [:server])
 
-    assert RESTServer.post(worker_pid, "/document", "aaa") == :ok
+    assert RESTServer.get(:server, "/document") == {:ok, :not_found}
 
-    assert RESTServer.get(worker_pid, "/document") == {:ok, "aaa"}
+    assert RESTServer.post(:server, "/document", "aaa") == :ok
+
+    assert RESTServer.get(:server, "/document") == {:ok, "aaa"}
   end
 
   test "broke supervised worker" do
-    worker_pid = RESTServer.Supervisor.get_worker
+    {:ok, sup_pid} = RESTServer.Supervisor.start_link
 
-    # Kill the pid and wait for the notification
-    Process.exit(worker_pid, :shutdown)
-    assert_receive {:exit, ^worker_pid}
+    {:ok, worker_pid} = Supervisor.start_child(sup_pid, [:server])
+
+    # Finish the server in an abnormal way
+    GenServer.stop(:server, :kill)
+    :timer.sleep(500)
+    assert Process.alive?(Process.whereis(:server))
+
+
+    # Finish the server in a normal way
+    GenServer.stop(:server, :normal)
+    :timer.sleep(500)
+    assert Process.whereis(:server) == nil
   end
 end
