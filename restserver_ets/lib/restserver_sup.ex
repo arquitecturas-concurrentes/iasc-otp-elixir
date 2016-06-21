@@ -18,7 +18,6 @@ defmodule RESTServer.Supervisor do
     ]
 
     supervise(children, strategy: :one_for_one)
-    ##supervise(children, strategy: :simple_one_for_one, max_restarts: 3, max_seconds: 5)
   end
 
 end
