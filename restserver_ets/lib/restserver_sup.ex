@@ -11,7 +11,9 @@ defmodule RESTServer.Supervisor do
   ## Server Callbacks
 
   def init(server_name) do
-    table = :ets.new(:server_ets, [:set, :public])
+   table = :ets.new(:server_ets, [:set, :public])
+   #table = :ets.new(:server_ets, [:bag, :protected])
+   #:dets.open_file(@dets_alias, [file: @name_dets_file, type: :set])
 
     children = [
       worker(RESTServer, [server_name, table], restart: :transient),
