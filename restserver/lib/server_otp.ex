@@ -2,6 +2,10 @@ defmodule ServerOTP do
   use GenServer
 
   ## Client API
+  
+  def start do
+    GenServer.start(__MODULE__, :ok, [])
+  end
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok, [])
